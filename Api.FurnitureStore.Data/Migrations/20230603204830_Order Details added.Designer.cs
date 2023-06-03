@@ -3,6 +3,7 @@ using System;
 using Api.FurnitureStore.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Api.FurnitureStore.Data.Migrations
 {
     [DbContext(typeof(ApiFurnitureStoreContext))]
-    partial class ApiFurnitureStoreContextModelSnapshot : ModelSnapshot
+    [Migration("20230603204830_Order Details added")]
+    partial class OrderDetailsadded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.16");
@@ -72,16 +74,21 @@ namespace Api.FurnitureStore.Data.Migrations
 
             modelBuilder.Entity("Api.FurnitureStore.Shared.OrderDetail", b =>
                 {
-                    b.Property<int>("OrderId")
+                    b.Property<int>("OrdenId")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("ProductId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int?>("OrderId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("Quantity")
                         .HasColumnType("INTEGER");
 
-                    b.HasKey("OrderId", "ProductId");
+                    b.HasKey("OrdenId", "ProductId");
+
+                    b.HasIndex("OrderId");
 
                     b.HasIndex("ProductId");
 
@@ -128,9 +135,7 @@ namespace Api.FurnitureStore.Data.Migrations
                 {
                     b.HasOne("Api.FurnitureStore.Shared.Order", null)
                         .WithMany("OrderDetails")
-                        .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("OrderId");
 
                     b.HasOne("Api.FurnitureStore.Shared.Product", null)
                         .WithMany("OrderDetails")
