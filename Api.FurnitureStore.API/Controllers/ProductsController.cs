@@ -8,11 +8,11 @@ namespace Api.FurnitureStore.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProductController : ControllerBase
+    public class ProductsController : ControllerBase
     {
         private readonly ApiFurnitureStoreContext _context;
 
-        public ProductController(ApiFurnitureStoreContext context)
+        public ProductsController(ApiFurnitureStoreContext context)
         {
             _context = context;
         }
