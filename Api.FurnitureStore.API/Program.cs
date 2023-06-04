@@ -1,6 +1,7 @@
 using Api.FurnitureStore.API.Configuration;
 using Api.FurnitureStore.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -41,7 +42,10 @@ builder.Services.AddAuthentication(options =>
         ValidateLifetime = true,
     };
 });
-
+//solo para test, esto siempre es true
+builder.Services.AddDefaultIdentity<IdentityUser>(options =>
+        options.SignIn.RequireConfirmedAccount = false)
+    .AddEntityFrameworkStores<ApiFurnitureStoreContext>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
