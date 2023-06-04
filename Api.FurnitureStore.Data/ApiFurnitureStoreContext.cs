@@ -6,7 +6,9 @@ namespace Api.FurnitureStore.Data
 {
     public class ApiFurnitureStoreContext : DbContext
     {
-        public ApiFurnitureStoreContext(DbContextOptions options) : base(options) { }
+        public ApiFurnitureStoreContext(DbContextOptions options) : base(options) 
+        {
+        }
 
        
 
