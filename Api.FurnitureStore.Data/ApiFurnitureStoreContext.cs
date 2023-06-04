@@ -1,10 +1,11 @@
 ﻿using Api.FurnitureStore.Shared;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 
 namespace Api.FurnitureStore.Data
 {
-    public class ApiFurnitureStoreContext : DbContext
+    public class ApiFurnitureStoreContext : IdentityDbContext
     {
         public ApiFurnitureStoreContext(DbContextOptions options) : base(options) 
         {
