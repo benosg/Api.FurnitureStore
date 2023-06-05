@@ -45,9 +45,10 @@ namespace Api.FurnitureStore.API.Controllers
             var user = new IdentityUser()
             {
                 Email = request.EmailAdress,
-                UserName = request.EmailAdress
+                UserName = request.EmailAdress,
+                
             };
-            var isCreated = await _userManager.CreateAsync(user);
+            var isCreated = await _userManager.CreateAsync(user,request.Password);
             if (isCreated.Succeeded)
             {
                 var token = GenerateToken(user);
