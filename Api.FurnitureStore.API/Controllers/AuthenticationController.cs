@@ -100,6 +100,31 @@ namespace Api.FurnitureStore.API.Controllers
 
             return jwtTokenHandler.WriteToken(token);
         }
+
+        [HttpPost("Login")] 
+        public async Task<IActionResult> Login([FromBody] UserLoginRequestDto request)
+        {
+            if (!ModelState.IsValid) return BadRequest();
+            var existingUser = await _userManager.FindByEmailAsync(request.Email);
+            if (existingUser != null) return BadRequest(new AuthResult()
+            {
+                Errors = new List<string>() { "Invalid Payload" },
+                Result = false
+                        
+            });
+
+            var checkUserAndPass = await _userManager.CheckPasswordAsync(existingUser, request.Password);
+            if (!checkUserAndPass)
+                return BadRequest(new AuthResult()
+                {
+                    Errors = new List<string>() { "Invalid Credentials" },
+                    Result = false
+
+                });
+            var token = GenerateToken(existingUser);
+            return Ok(new AuthResult { Token=token, Result=true});
+        }
+
     }
 }
 
