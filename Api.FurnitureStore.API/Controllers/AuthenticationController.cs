@@ -107,7 +107,7 @@ namespace Api.FurnitureStore.API.Controllers
         {
             if (!ModelState.IsValid) return BadRequest();
             var existingUser = await _userManager.FindByEmailAsync(request.Email);
-            if (existingUser != null) return BadRequest(new AuthResult()
+            if (existingUser == null) return BadRequest(new AuthResult()
             {
                 Errors = new List<string>() { "Invalid Payload" },
                 Result = false
