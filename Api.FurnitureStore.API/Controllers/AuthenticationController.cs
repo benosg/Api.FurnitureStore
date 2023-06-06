@@ -171,12 +171,14 @@ namespace Api.FurnitureStore.API.Controllers
         {
             var verificationCode = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             verificationCode = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(verificationCode));
-            //example: https://localhost:8080/authentication/verifiemail/userId=exampleUserId&code=exampleCode
-            var callbackUrl = @$"{Request.Scheme}://{Request.Host}{Url.Action("ConfirmEmail", controller: "Authentication",
+
+            //example: https://localhost:8080/api/authentication/verifyemail/userId=exampleuserId&code=examplecode
+            var callbackUrl = $@"{Request.Scheme}://{Request.Host}{Url.Action("ConfirmEmail", controller: "Authentication",
                                     new { userId = user.Id, code = verificationCode })}";
 
-            var emailBody = $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here </a>";
-            await _emailSender.SendEmailAsync(user.Email, "confirm your email", emailBody);
+            var emailBody = $@"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>";
+
+            await _emailSender.SendEmailAsync(user.Email, "Confirm your email", emailBody);
         }
 
     }
