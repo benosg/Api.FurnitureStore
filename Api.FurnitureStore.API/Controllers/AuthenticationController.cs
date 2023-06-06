@@ -61,7 +61,6 @@ namespace Api.FurnitureStore.API.Controllers
             var isCreated = await _userManager.CreateAsync(user, request.Password);
             if (isCreated.Succeeded)
             {
-                //var token = GenerateToken(user);
                 await SendVerificationEmail(user);
                 return Ok(new AuthResult()
                 {
