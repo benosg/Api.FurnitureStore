@@ -1,7 +1,9 @@
 using Api.FurnitureStore.API.Configuration;
+using Api.FurnitureStore.API.Services;
 using Api.FurnitureStore.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -31,7 +33,7 @@ builder.Services.AddSwaggerGen(
             Scheme = "Bearer",
             BearerFormat = "JWT",
             In = ParameterLocation.Header,
-            Description = $@"JWT Authorizacion header using the bearer scheme.{Environment.NewLine}{Environment.NewLine} Enter 'Bearer' [space],"+
+            Description = $@"JWT Authorizacion header using the bearer scheme.{Environment.NewLine}{Environment.NewLine} Enter 'Bearer' [space]," +
                         $@" and then your token in text input bellow.  {Environment.NewLine}{Environment.NewLine}" +
                         $@"Example: 'Bearer 123412323fdgsdfgsdfgsfd'"
         });
@@ -50,8 +52,11 @@ builder.Services.AddSwaggerGen(
 
 builder.Services.AddDbContext<ApiFurnitureStoreContext>(options =>
                 options.UseSqlite(builder.Configuration.GetConnectionString("ApiFurnitureStoreContext")));
-builder.Services.Configure<JwtConfig>(builder.Configuration.GetSection("jwtConfig"));
 
+builder.Services.Configure<JwtConfig>(builder.Configuration.GetSection("jwtConfig"));
+//EMAIL
+builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
+builder.Services.AddSingleton<IEmailSender, EmailService>();
 
 builder.Services.AddAuthentication(options =>
 {
