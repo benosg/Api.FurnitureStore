@@ -29,7 +29,6 @@ namespace Api.FurnitureStore.API.Services
                 using var client = new SmtpClient();
 
                 client.AuthenticationMechanisms.Remove("XOAUTH2");
-                client.ServerCertificateValidationCallback = (s, c, h, e) => true;
                 await client.ConnectAsync(_smtpSettings.Server, _smtpSettings.Port, SecureSocketOptions.StartTls).ConfigureAwait(false); ;
                 await client.AuthenticateAsync(_smtpSettings.UserName, _smtpSettings.Password).ConfigureAwait(false); 
                 await client.SendAsync(message).ConfigureAwait(false); 

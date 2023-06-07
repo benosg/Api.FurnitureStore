@@ -3,6 +3,7 @@ using System;
 using Api.FurnitureStore.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Api.FurnitureStore.Data.Migrations
 {
     [DbContext(typeof(ApiFurnitureStoreContext))]
-    partial class ApiFurnitureStoreContextModelSnapshot : ModelSnapshot
+    [Migration("20230607145525_Adding Refesth tokens table")]
+    partial class AddingRefesthtokenstable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.16");
