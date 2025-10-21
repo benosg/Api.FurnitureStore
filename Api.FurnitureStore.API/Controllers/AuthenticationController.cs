@@ -1,4 +1,5 @@
-﻿using Api.FurnitureStore.API.Configuration;
+﻿using System;
+using Api.FurnitureStore.API.Configuration;
 using Api.FurnitureStore.Data;
 using Api.FurnitureStore.Shared;
 using Api.FurnitureStore.Shared.Auth;
@@ -8,16 +9,15 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using Org.BouncyCastle.Utilities;
-using System.Diagnostics.CodeAnalysis;
 using System.IdentityModel.Tokens.Jwt;
-using System.Reflection.Metadata.Ecma335;
 using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Text.Encodings.Web;
 
@@ -195,15 +195,18 @@ namespace Api.FurnitureStore.API.Controllers
                     new Claim(JwtRegisteredClaimNames.Iat, DateTime.Now.ToUniversalTime().ToString())
                 })),
                 Expires = DateTime.UtcNow.Add(_jwtConfig.ExpiryTime),
+                Issuer = _jwtConfig.Issuer,
+                Audience = _jwtConfig.Audience,
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256)
             };
             var token = jwtTokenHandler.CreateToken(tokenDescriptor);
 
             var jwtToken = jwtTokenHandler.WriteToken(token);
+            var refreshTokenValue = RandomGenerator.GenerateRandomString(64);
             var refreshtoken = new RefreshToken
             {
                 JwiId = token.Id,
-                Token = RandomGenerator.GenerateRandomString(23),
+                TokenHash = HashRefreshToken(refreshTokenValue),
                 AddedDate = DateTime.UtcNow,
                 ExpiryDate = DateTime.UtcNow.AddMonths(1),
                 IsRevoked = false,
@@ -216,7 +219,7 @@ namespace Api.FurnitureStore.API.Controllers
             return new AuthResult
             {
                 Token = jwtToken,
-                RefreshToken = refreshtoken.Token,
+                RefreshToken = refreshTokenValue,
                 Result = true
             };
         }
@@ -241,9 +244,10 @@ namespace Api.FurnitureStore.API.Controllers
 
             try
             {
-                _tokenValidationParameters.ValidateLifetime = false; //solo test prod true;
+                var validationParameters = _tokenValidationParameters.Clone();
+                validationParameters.ValidateLifetime = false;
 
-                var tokenBeingVerified = jwtTokenHandler.ValidateToken(tokenRequest.Token, _tokenValidationParameters, out var validatedToken);
+                var tokenBeingVerified = jwtTokenHandler.ValidateToken(tokenRequest.Token, validationParameters, out var validatedToken);
 
                 if (validatedToken is JwtSecurityToken jwtSecurityToken)
                 {
@@ -262,7 +266,7 @@ namespace Api.FurnitureStore.API.Controllers
                     throw new Exception("Token Expired");
 
                 var storedToken = await _context.RefreshTokens.
-                        FirstOrDefaultAsync(t => t.Token == tokenRequest.RefreshToken);
+                        FirstOrDefaultAsync(t => t.TokenHash == HashRefreshToken(tokenRequest.RefreshToken));
                 if (storedToken == null)
                     throw new Exception("Invalid Token");
 
@@ -292,6 +296,14 @@ namespace Api.FurnitureStore.API.Controllers
                     : "Internal Server Error";
                 return new AuthResult() { Result = false, Errors = new List<string> { message } };
             }
+        }
+
+        private static string HashRefreshToken(string refreshToken)
+        {
+            using var sha256 = SHA256.Create();
+            var tokenBytes = Encoding.UTF8.GetBytes(refreshToken);
+            var hashedBytes = sha256.ComputeHash(tokenBytes);
+            return Convert.ToBase64String(hashedBytes);
         }
 
     }
