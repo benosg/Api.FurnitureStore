@@ -1,5 +1,8 @@
-﻿using Api.FurnitureStore.Data;
+﻿using Api.FurnitureStore.API.Models;
+using Api.FurnitureStore.Data;
 using Api.FurnitureStore.Shared;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -18,11 +21,14 @@ namespace Api.FurnitureStore.API.Controllers
         {
             _context = context;
         }
-        [AllowAnonymous]
         [HttpGet]
-        public async Task<IEnumerable<Client>> Get()
+        public async Task<ActionResult<IEnumerable<ClientSummaryDto>>> Get()
         {
-            return await _context.Clients.ToListAsync();
+            var clients = await _context.Clients
+                .Select(c => new ClientSummaryDto(c.Id, c.FirstName, c.LastName))
+                .ToListAsync();
+
+            return Ok(clients);
         }
         [HttpGet("{id}")]
         public async Task<IActionResult> GetDetails(int id)

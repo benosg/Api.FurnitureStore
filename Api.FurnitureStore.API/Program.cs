@@ -62,15 +62,37 @@ try
     //EMAIL
     builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
     builder.Services.AddSingleton<IEmailSender, EmailService>();
-    var key = Encoding.ASCII.GetBytes(builder.Configuration.GetSection("JwtConfig:Secret").Value);
+    var jwtSecret = builder.Configuration["JwtConfig:Secret"];
+    var jwtIssuer = builder.Configuration["JwtConfig:Issuer"];
+    var jwtAudience = builder.Configuration["JwtConfig:Audience"];
+
+    if (string.IsNullOrWhiteSpace(jwtSecret))
+    {
+        throw new InvalidOperationException("JwtConfig:Secret must be configured.");
+    }
+
+    if (string.IsNullOrWhiteSpace(jwtIssuer))
+    {
+        throw new InvalidOperationException("JwtConfig:Issuer must be configured.");
+    }
+
+    if (string.IsNullOrWhiteSpace(jwtAudience))
+    {
+        throw new InvalidOperationException("JwtConfig:Audience must be configured.");
+    }
+
+    var key = Encoding.ASCII.GetBytes(jwtSecret);
     var tokenValidationParameters = new TokenValidationParameters()
     {
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(key),
-        ValidateIssuer = false,//produccion siempre true
-        ValidateAudience = false,//produccion siempre true
-        RequireAudience = false,//produccion siempre true
+        ValidateIssuer = true,
+        ValidIssuer = jwtIssuer,
+        ValidateAudience = true,
+        ValidAudience = jwtAudience,
+        RequireAudience = true,
         ValidateLifetime = true,
+        ClockSkew = TimeSpan.Zero
     };
 
     builder.Services.AddSingleton(tokenValidationParameters);

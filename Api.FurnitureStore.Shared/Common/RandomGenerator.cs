@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Security.Cryptography;
 
 namespace Api.FurnitureStore.Shared.Common
 {
@@ -11,11 +9,23 @@ namespace Api.FurnitureStore.Shared.Common
 
         public static string GenerateRandomString(int size)
         {
-            var random = new Random();
-            var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz$#-_.";
+            if (size <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(size), "Size must be greater than zero.");
+            }
 
-            return new string(Enumerable.Repeat(chars, size).
-                    Select(s => s[random.Next(s.Length)]).ToArray());
+            var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz$#-_.";
+            var result = new char[size];
+            var randomBytes = new byte[size];
+            RandomNumberGenerator.Fill(randomBytes);
+
+            for (var i = 0; i < size; i++)
+            {
+                var index = randomBytes[i] % chars.Length;
+                result[i] = chars[index];
+            }
+
+            return new string(result);
         }
     }
 
